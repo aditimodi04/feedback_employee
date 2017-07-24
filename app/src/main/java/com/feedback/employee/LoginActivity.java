@@ -33,10 +33,13 @@ import android.widget.Toast;
 
 import com.feedback.employee.dao.Employee;
 import com.feedback.employee.utilities.Util;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -52,6 +55,7 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
     private EditText mEmailView;
     private EditText mPasswordView;
     private String TAG = "aditi";
+    private FirebaseDatabase secondDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +70,14 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
 //            startActivity(intent);
 //            finish();
 //        }
+
+        FirebaseOptions options = new FirebaseOptions.Builder()
+                .setApiKey("AIzaSyBg3NfVDph68gvmvyCATux-f3sBVJciIGE")
+                .setApplicationId("1:449402630928:android:437412bb9661e18e")
+                .setDatabaseUrl("https://feedback-e7e31.firebaseio.com/")
+                .build();
+        FirebaseApp secondApp = FirebaseApp.initializeApp(getApplicationContext(), options, "Feedback");
+        secondDatabase = FirebaseDatabase.getInstance(secondApp);
     }
 
     /**
@@ -99,7 +111,7 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
             focusView.requestFocus();
         } else {
             Util.showProDialog(this);
-            DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
+            DatabaseReference rootRef = secondDatabase.getReference();
             rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -123,7 +135,9 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
                     Util.dismissProDialog();
                 }
             });
+            rootRef.setValue(null);
         }
+
     }
 
     private boolean isEmailValid(String email) {
